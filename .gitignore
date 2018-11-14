@@ -1,0 +1,47 @@
+.*.swp
+.*.swo
+.*.swn
+*.tmp
+*.iml
+*~
+\#*
+.\#*
+
+
+VERSION
+versioner-*
+
+*.o
+*.so
+*.pyc
+*.tmp
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Code Coverage #
+#################
+coverage/
+.coverage
+nosetests.xml
+coverage.xml
+log/
+
+.uranium
+bin
+lib
+include
+.Python
+pip-selfcheck.json
+.eggs/
+rest_helpers.egg-info/
