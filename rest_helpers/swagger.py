@@ -119,7 +119,6 @@ def get_swagger_paths():
         augment_dic = _get_swagger_part(route.view_function, SWAGGER_AUGMENT_DEFAULT_KEY)
         if augment_dic is not None:
             _update(return_value[key], { route.options["methods"][0].lower() : augment_dic})
-
     return return_value
 
 
@@ -152,6 +151,8 @@ def _get_default_swagger_path(route):
         return_value = _get_default_swagger_path_for_op_route(route)
     elif type(route) == routes.group_operation_resource_route:
         return_value = _get_default_swagger_path_for_group_op_route(route)
+    elif type(route) == routes.patch_resource_route:
+        return_value = _get_default_swagger_path_for_patch_resource_route(route)
 
     return return_value
 
@@ -255,6 +256,36 @@ def _get_default_swagger_path_for_put_route(route):
 
     return return_value
 
+def _get_default_swagger_path_for_patch_resource_route(route):
+    return_value = {
+        "patch":{
+            "tags":[route.resource_class.resource_type],
+            "summary": "Patch resource".format(type=route.resource_class.resource_type),
+            "description":"",
+            "operationId": "PATCH_{type}".format(type=route.resource_class.resource_type),
+            "produces": ["application/json"],
+            "parameters": _get_parameters(route),
+            "responses":{
+                "200":
+                {
+                    "description": "successful operation",
+                    "schema":
+                    {
+                        "$ref": "#/definitions/{type}".format(type=_get_swagger_type(route.resource_class)),
+                    }
+                },
+                "400":
+                {
+                    "description": "The body of the request is improperly formed.".format(type=route.resource_class.resource_type),
+                    "schema":
+                    {
+                        "$ref": "#/definitions/error",
+                    }
+                }
+            }
+        }
+    }
+    return return_value
 
 def _get_default_swagger_path_for_op_route(route):
     return_value = {

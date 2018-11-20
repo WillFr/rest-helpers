@@ -136,6 +136,7 @@ async def test_base_resource_route_resource_id_binding():
     (routes.get_resource_route, { "resource_class":TestClass }, "/tests/<test_name>", "GET", "/tests/test_name", "/tests/test_name"),
     (routes.get_all_resources_route, { "resource_class":TestClass }, "/tests/", "GET", "", "/tests/"),
     (routes.put_resource_route, { "resource_class":TestClass }, "/tests/<test_name>", "PUT", "/tests/test_name", "/tests/test_name"),
+    (routes.patch_resource_route, { "resource_class":TestClass }, "/tests/<test_name>", "PATCH", "/tests/test_name", "/tests/test_name"),
     (routes.delete_resource_route, { "resource_class":TestClass }, "/tests/<test_name>", "DELETE", "/tests/test_name", "/tests/test_name"),
     (routes.operation_resource_route ,{ "resource_class":TestClass, "operation_name":"test_op"}, "/tests/<test_name>/test_op", "POST", "/tests/test_name", "/tests/test_name/test_op"),
     (routes.group_operation_resource_route ,{ "resource_class":TestClass, "operation_name":"test_op"}, "/tests/test_op", "POST", "", "/tests/test_op"),
@@ -143,6 +144,7 @@ async def test_base_resource_route_resource_id_binding():
     (routes.get_resource_route, { "resource_class":SubTestClass }, "/tests/<test_name>/subtests/<subtest_name>", "GET", "/tests/test_name/subtests/subtest", "/tests/test_name/subtests/subtest"),
     (routes.get_all_resources_route, { "resource_class":SubTestClass }, "/tests/<test_name>/subtests/", "GET", "/tests/test_name", "/tests/test_name/subtests/"),
     (routes.put_resource_route, { "resource_class":SubTestClass }, "/tests/<test_name>/subtests/<subtest_name>", "PUT", "/tests/test_name/subtests/subtest", "/tests/test_name/subtests/subtest"),
+    (routes.patch_resource_route, { "resource_class":SubTestClass }, "/tests/<test_name>/subtests/<subtest_name>", "PATCH", "/tests/test_name/subtests/subtest", "/tests/test_name/subtests/subtest"),
     (routes.delete_resource_route, { "resource_class":SubTestClass }, "/tests/<test_name>/subtests/<subtest_name>", "DELETE", "/tests/test_name/subtests/subtest", "/tests/test_name/subtests/subtest"),
     (routes.operation_resource_route, { "resource_class":SubTestClass, "operation_name":"test_op"}, "/tests/<test_name>/subtests/<subtest_name>/test_op", "POST", "/tests/test_name/subtests/subtest", "/tests/test_name/subtests/subtest/test_op"),
     (routes.group_operation_resource_route, { "resource_class":SubTestClass, "operation_name":"test_op"}, "/tests/<test_name>/subtests/test_op", "POST", "/tests/test_name", "/tests/test_name/subtests/test_op"),
@@ -176,6 +178,7 @@ async def test_resource_routes(route, route_kwargs, rule, method, res_id, url):
     (routes.add_get_resource_route, { "resource_class": TestClass}),
     (routes.add_get_all_resource_route, { "resource_class": TestClass}),
     (routes.add_put_resource_route, { "resource_class": TestClass}),
+    (routes.add_patch_resource_route, { "resource_class": TestClass}),
     (routes.add_operation_route, { "resource_class": TestClass, "operation_name":'test_op'}),
     (routes.add_group_operation_route, { "resource_class": TestClass, "operation_name":'test_group_op'}),
 ])

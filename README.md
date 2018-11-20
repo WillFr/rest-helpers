@@ -211,6 +211,35 @@ put_resource_route is intended to create or modify a resource in an idempotent w
 
 resource_id is bound similarly to get_resource_route.
 
+
+### patch_resource_route decorator
+Eg:
+```python
+from rest_helper.flask.routes import routes
+from rest_helper.jsonapi_objects import Resource
+
+class HostResource(Resource):
+    resource_type = "/clusters/hosts"
+
+@routes.patch_resource_route(HostResource, doc=True, versionner=None, exception_handler=None)
+def my_function(cluster_name, host_name):
+    return response.ok()
+```
+This generates a route to PATCH a resource in order to modify it:
+`PATCH /resource_type/resource_name/sub_resource_type/sub_resource_name`
+
+In the example above it will lead to:
+`PATCH /clusters/cluster_abc/hosts/sub_resource_name`
+
+With a url_root_versioner it would become:
+`PATCH /api_version/resource_type/resource_name/sub_resource_type/sub_resource_name`
+
+patch_resource_route is intended to partially update resource in an idempotent way.
+
+resource_id is bound similarly to get_resource_route.
+
+
+
 ### operation_resource_route
 Eg:
 ```python
