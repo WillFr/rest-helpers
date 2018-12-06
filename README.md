@@ -539,6 +539,8 @@ def my_function(
 )
 ```
 
+Note: this binding can take a deserializer that will transform the oauth value into another object.
+
 <a name="deserialization-section"></a>
 
 ## Deserialization, in detail

@@ -15,9 +15,10 @@ def test(build):
     build.packages.install("pytest-cov")
     build.packages.install("mock")
     build.executables.run([
-        "py.test", "--cov", "rest_helpers",
+        "py.test", "--cov=rest_helpers",
         "rest_helpers/tests",
-        "--cov-report", "term-missing"
+        "--cov-report", "term-missing",
+        "--cov-report", "xml:cov.xml"
     ] + build.options.args)
 
 

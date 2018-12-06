@@ -46,3 +46,4 @@ pip-selfcheck.json
 .eggs/
 rest_helpers.egg-info/
 dist/*
+cov.xml

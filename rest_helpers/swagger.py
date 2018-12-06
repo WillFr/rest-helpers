@@ -1,6 +1,6 @@
 import yaml
 import re
-from rest_helpers import routes,jsonapi_objects, binding, validators, type_deserializers
+from rest_helpers import routes,jsonapi_objects, binding, validators, type_deserializers, routes
 
 SWAGGER_AUGMENT_DEFAULT_KEY = "augment_default"
 SWAGGER_EXTRA_DEFINITION_KEY = "extra_definition"
@@ -358,13 +358,12 @@ def _get_default_swagger_path_for_group_op_route(route):
 def _get_parameters(route, operation_name=None):
     parameter_names = re.finditer("<(\w+)>", route.rule)
 
-    
     action = "to get." if operation_name is None else "to apply {operation_name} on".format(operation_name=operation_name)
     parameters = [
     {
         "name":p.group(1),
         "in":"path",
-        "description":"Name of the {type} {action}".format(type=route.resource_class.resource_type, action=action),
+        "description":"Name of the {type} {action}".format(type=route.resource_class.resource_type, action=action) if isinstance(route, routes.base_resource_route) else "",
         "required":True,
         "type":"string"
     } for p in parameter_names]

@@ -319,7 +319,7 @@ class from_query_string(base_binder):
 _key_clean_regex=re.compile('[^a-zA-Z0-9]+')
 class from_Oauth(base_binder):
     __name__ = "from_Oauth"
-    def __init__(self, framework_adapter, allowed_domains=None, validate_options=None, client_id=None, field=None, valid_tokens=None):
+    def __init__(self, framework_adapter, allowed_domains=None, validate_options=None, client_id=None, field=None, valid_tokens=None, deserializer=None):
         """
         This function is to be used as a decorator:
         it will fill the parameter of a method by parsing the
@@ -345,8 +345,9 @@ class from_Oauth(base_binder):
         client_id = the client id of the application : the token audience will be verified againt it.
         field = the method argument to be filled with auth infos
         valid_tokens = a dict of tokens that are valid and bypass auth, values associated with a valid token will be passed to the field.
+        deserializer = a function used to deserialize the auth result into an object.
         """
-        super(from_Oauth, self).__init__(framework_adapter, (field or "user_auth"), lambda x,y:(True,"always valid"), lambda x:x)
+        super(from_Oauth, self).__init__(framework_adapter, (field or "user_auth"), lambda x,y:(True,"always valid"), deserializer or (lambda x:x))
         self._public_keys = {}
         self.allowed_domains = allowed_domains
         self.client_id = client_id

@@ -66,5 +66,6 @@ setup(
                      "coverage",
                      "httpretty",
                      "httmock",
-                    "pytest-aiohttp"] + install_requires
+                    "pytest-aiohttp",
+                    "pytest-cov"] + install_requires
     )
