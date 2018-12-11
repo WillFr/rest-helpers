@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 from jose import jws,jwt
 
-from rest_helpers import type_deserializers, validators
+from rest_helpers import type_deserializers, validators, await_if_needed
 from rest_helpers.common import decorators
 from rest_helpers.rest_exceptions import InvalidDataException, UnauthorizedException, ForbiddenException
 
@@ -415,7 +415,7 @@ async def _on_request_binding(decorator, *args, **kwargs):
     # if we are not within a request context (testing for instance)
     # there is no work to be done.
     if decorator.framework_adapter.is_in_test():
-        return await decorator.func(*args, **kwargs) if inspect.iscoroutinefunction(decorator.func) else decorator.func(*args, **kwargs)
+        return await await_if_needed(decorator.func(*args, **kwargs))
 
     if decorator.deserializer is None and decorator.type is not None:
         decorator.deserializer = type_deserializers.get_default_deserializer(decorator.type)
@@ -444,9 +444,8 @@ async def _on_request_binding(decorator, *args, **kwargs):
 
     kwargs.pop(decorator.field,None)
     kwargs[decorator.field] = value
-
-    result = await decorator.func(*args, **kwargs) if inspect.iscoroutinefunction(decorator.func) else decorator.func(*args, **kwargs)
-    return result
+    
+    return await await_if_needed(decorator.func(*args, **kwargs))
 
 async def _get_dict_from_json_body(framework_adapter):
     try:

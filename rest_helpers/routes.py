@@ -4,7 +4,7 @@ import traceback
 import functools
 import inspect
 from jinja2 import Template
-from rest_helpers import responses, swagger, rest_helper_context, binding
+from rest_helpers import responses, swagger, rest_helper_context, binding, await_if_needed
 from rest_helpers.common import decorators
 from rest_helpers.framework_adapter import BaseFrameworkAdapter
 
@@ -41,7 +41,8 @@ class route(object):
             self.framework_adapter.attach_rest_helper_request_context(rh_context)
 
             self._before_fn_call(args, kwargs)
-            result = await self._binding_functions(*args, **kwargs) if inspect.iscoroutinefunction(self._binding_functions) else self._binding_functions(*args, **kwargs)
+
+            result = await await_if_needed(self._binding_functions(*args, **kwargs))
             return result if rh_context.versionner is None else rh_context.versionner.response(result)
         except Exception as ex:
             LOGGER.error("An exception {0} occured: {1}\n stacktrace: {2} \n request url: {3} \n request body: {4}".format(

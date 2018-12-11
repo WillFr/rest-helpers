@@ -28,7 +28,7 @@ def publish(build):
     build.packages.install("twine")
     build.executables.run([
         "python", "setup.py",
-        "sdist", "bdist_wheel", "--universal", "upload", "--release"
+        "sdist", "bdist_wheel", "--universal", "--release"
     ])
 
     build.executables.run([

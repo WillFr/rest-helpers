@@ -5,6 +5,7 @@ from random import randint
 from requests_futures.sessions import FuturesSession
 
 from flask import make_response
+from rest_helpers import await_if_needed
 
 class BaseValidator():
     def __init__(self, framework_adapter):
@@ -47,8 +48,7 @@ class shadow_traffic(object):
             response_future = session.request(**request_kwargs)
 
         try:
-            result = await self.f(*args, **kwargs) if inspect.iscoroutinefunction(self.f) else self.f(*args, **kwargs)
-            result = make_response(self.f(*args, **kwargs))
+            result = make_response(await await_if_needed(self.f(*args, **kwargs)))
             response = response_future.result()
             if self.validator.validate(result, response):
                 return result

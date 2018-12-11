@@ -16,11 +16,23 @@ def flask_adapter_builder(*args, **kwargs):
 
     return adapter, args, kwargs
 
+
+_async_handled = False
+_async_map = {}
 def handle_async_route(loop=None):
     """
     This functions monkey patches the Flask class to transform asynchrnous view functions into
     synchronous ones.
+
+    The async handling should be called only once (which is guarded by the `async_handled` global variable)
+    Each route view function will be wrapped in a sync_function only once and this mapping will be stored
+    in the `_async_map` variable
     """
+
+    global _async_handled
+    if _async_handled is True:
+        return
+    _async_handled = True
 
     original = Flask.add_url_rule
     if loop is None:
@@ -30,12 +42,18 @@ def handle_async_route(loop=None):
             loop = asyncio.new_event_loop()
 
     def replacement(self, rule, endpoint=None, view_func=None, **options):
-        if view_func is not None and inspect.iscoroutinefunction(view_func):
-            def sync_function(*args, **kwargs):
-                return loop.run_until_complete(view_func(*args, **kwargs))
-            functools.update_wrapper(sync_function, view_func)
-        else:
-            sync_function = view_func
+        global _async_map
+        sync_function = _async_map.get(view_func)
+        if sync_function is None:
+            if view_func is not None :
+                def sync_function(*args, **kwargs):
+                    result = view_func(*args, **kwargs)
+                    return loop.run_until_complete(result) if inspect.iscoroutine(result) else result
+
+                functools.update_wrapper(sync_function, view_func)
+                _async_map[view_func] = sync_function
+            else:
+                sync_function = view_func
 
         return original(self, rule, endpoint=endpoint or "sync-{}".format(view_func.__name__), view_func=sync_function, **options)
 
