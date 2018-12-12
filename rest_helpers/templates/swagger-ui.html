@@ -211,7 +211,10 @@
                         clientId:"{{okta.clientId}}",
                         redirectUri: "{{okta.redirectUri}}",
                         authParams: {
-                            responseType: ['id_token']
+                            responseType: ['token'],
+                            {%- if okta.auth_issuer is defined %}
+                            issuer: "{{okta.auth_issuer}}"
+                            {%- endif %}
                         }
                     });
 
@@ -220,7 +223,7 @@
                     }, function success(res) {
                         if (res.status === 'SUCCESS') {
                             console.log('Do something with this sessionToken',  res);
-                            $('#input_apiKey').val(res[0].idToken)
+                            $('#input_apiKey').val(res[0].accessToken)
                             $("#okta").hide()
                             addApiKeyAuthorization();
                         } else {
