@@ -319,7 +319,7 @@ class from_query_string(base_binder):
 _key_clean_regex=re.compile('[^a-zA-Z0-9]+')
 class from_Oauth(base_binder):
     __name__ = "from_Oauth"
-    def __init__(self, framework_adapter, allowed_domains=None, validate_options=None, client_id=None, field=None, valid_tokens=None, deserializer=None):
+    def __init__(self, framework_adapter, allowed_domains=None, validate_options=None, client_id=None, audience=None, field=None, valid_tokens=None, deserializer=None):
         """
         This function is to be used as a decorator:
         it will fill the parameter of a method by parsing the
@@ -353,6 +353,7 @@ class from_Oauth(base_binder):
         self.client_id = client_id
         self.validate_options = validate_options
         self.valid_tokens = valid_tokens or {}
+        self.audience = audience
 
 
     async def get_value(self):
@@ -397,7 +398,7 @@ class from_Oauth(base_binder):
             decoded = jwt.decode(
                 id_token,
                 key=self._public_keys[cleaned_key_id],
-                audience=self.client_id,
+                audience=self.audience,
                 options=self.validate_options)
         except Exception as ex:
             raise ForbiddenException("""You are not authorized to access the requested resource or operation.
