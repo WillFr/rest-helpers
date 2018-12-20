@@ -163,7 +163,7 @@ def _get_default_swagger_path_for_get_route(route):
             "tags":[route.resource_class.resource_type],
             "summary": "Get by name".format(type=route.resource_class.resource_type),
             "description":"",
-            "operationId": "GET_{type}".format(type=route.resource_class.resource_type),
+            "operationId": "get{type}".format(type="_".join((unpluralize(x) for x in route.resource_class.resource_type.split("/")))),
             "produces": ["application/json"],
             "parameters": _get_parameters(route),
             "responses":{
@@ -196,7 +196,7 @@ def _get_default_swagger_path_for_get_all_route(route):
             "tags":[route.resource_class.resource_type],
             "summary": "Get all".format(type=route.resource_class.resource_type),
             "description":"",
-            "operationId": "GET_ALL_{type}".format(type=route.resource_class.resource_type),
+            "operationId": "get_all{type}".format(type="_".join(x for x in route.resource_class.resource_type.split("/"))),
             "produces": ["application/json"],
             "parameters": _get_parameters(route),
             "responses":{
@@ -229,7 +229,7 @@ def _get_default_swagger_path_for_put_route(route):
             "tags":[route.resource_class.resource_type],
             "summary": "Create or edit".format(type=route.resource_class.resource_type),
             "description":"",
-            "operationId": "PUT_{type}".format(type=route.resource_class.resource_type),
+            "operationId": "put{type}".format(type="_".join((unpluralize(x) for x in route.resource_class.resource_type.split("/")))),
             "produces": ["application/json"],
             "consumes": ["application/json"],
             "parameters": parameters,
@@ -262,7 +262,7 @@ def _get_default_swagger_path_for_patch_resource_route(route):
             "tags":[route.resource_class.resource_type],
             "summary": "Patch resource".format(type=route.resource_class.resource_type),
             "description":"",
-            "operationId": "PATCH_{type}".format(type=route.resource_class.resource_type),
+            "operationId": "patch{type}".format(type="_".join((unpluralize(x) for x in route.resource_class.resource_type.split("/")))),
             "produces": ["application/json"],
             "parameters": _get_parameters(route),
             "responses":{
@@ -291,9 +291,9 @@ def _get_default_swagger_path_for_op_route(route):
     return_value = {
         "post":{
             "tags":[route.resource_class.resource_type],
-            "summary": "Operation {operation_name}".format(operation_name=route.operation_name, type=route.resource_class.resource_type),
+            "summary": "Operation {operation_name}".format(operation_name=route.operation_name),
             "description":"",
-            "operationId": "POST_{operation_name}_{type}".format(operation_name=route.operation_name, type=route.resource_class.resource_type),
+            "operationId": "{operation_name}{type}".format(operation_name=route.operation_name, type="_".join((unpluralize(x) for x in route.resource_class.resource_type.split("/")))),
             "produces": ["application/json"],
             "parameters": _get_parameters(route, route.operation_name),
             "responses":{
@@ -323,9 +323,9 @@ def _get_default_swagger_path_for_group_op_route(route):
     return_value = {
         "post":{
             "tags":[route.resource_class.resource_type],
-            "summary": "Group operation {operation_name}".format(operation_name=route.operation_name, type=route.resource_class.resource_type),
+            "summary": "Group operation {operation_name}".format(operation_name=route.operation_name),
             "description":"",
-            "operationId": "POST_GR_{operation_name}_{type}".format(operation_name=route.operation_name, type=route.resource_class.resource_type),
+            "operationId": "{operation_name}_all{type}".format(operation_name=route.operation_name, type="_".join(route.resource_class.resource_type.split("/"))),
             "produces": ["application/json"],
             "parameters": _get_parameters(route, route.operation_name),
             "responses":{
@@ -508,3 +508,6 @@ def _update(d, u):
         else:
             d[k] = v
     return d
+
+def unpluralize(word):
+    return word[:-3] + "y" if word [-3:] == "ies" else word[:-1]
