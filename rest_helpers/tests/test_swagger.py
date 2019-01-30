@@ -139,7 +139,6 @@ def test_get_parameters_resource_route():
                     'type': 'string'
                 },
                 {
-                    'description': None,
                     'in': 'header',
                     'name': 'in_header',
                     'required': False,
@@ -148,7 +147,10 @@ def test_get_parameters_resource_route():
                 {
                     'in': 'body',
                     'name': 'body',
-                    'required': True
+                    'required': True,
+                    'schema': {
+                        'type': 'object'
+                    }
                 }
             ]
     finally:

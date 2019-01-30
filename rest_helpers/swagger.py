@@ -388,7 +388,7 @@ def _get_parameters(route, operation_name=None):
             "name":p.query_field,
             "in":"query",
             "required": not p.has_default,
-            "type": _get_parameter_type(p.type)
+            "type": _get_parameter_type(p.type),
         }, swagger_parameter_dict.get(p.query_field,{})) for p in query_decorators]
         parameters += [x for x in query_parameters if x is not None]
 
@@ -399,7 +399,6 @@ def _get_parameters(route, operation_name=None):
             "in":"header",
             "required": not p.has_default,
             "type": _get_parameter_type(p.type),
-            "description": swagger_parameter_dict.get(p.header_field)
         }, swagger_parameter_dict.get(p.header_field,{})) for p in header_decorators]
 
         parameters += [x for x in header_parameters if x is not None]
@@ -410,7 +409,8 @@ def _get_parameters(route, operation_name=None):
             merge({
                 "name":"body",
                 "in":"body",
-                "required": any(not p.has_default for p in body_parameters)
+                "required": any(not p.has_default for p in body_parameters),
+                "schema": {"type": "object"}
                 },
                 swagger_parameter_dict.get("body", {}))
             ]
