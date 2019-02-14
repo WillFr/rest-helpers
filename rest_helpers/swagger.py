@@ -234,7 +234,7 @@ def _get_default_swagger_path_for_put_route(route):
             "consumes": ["application/json"],
             "parameters": parameters,
             "responses":{
-                "200":
+                "201":
                 {
                     "description": "successful operation",
                     "schema":
@@ -266,7 +266,7 @@ def _get_default_swagger_path_for_patch_resource_route(route):
             "produces": ["application/json"],
             "parameters": _get_parameters(route),
             "responses":{
-                "200":
+                "201":
                 {
                     "description": "successful operation",
                     "schema":
