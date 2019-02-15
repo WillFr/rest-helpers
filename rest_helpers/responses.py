@@ -41,7 +41,7 @@ def internal_server_error(framework_adapter, exception, stack_trace=""):
     )
     return error(framework_adapter, 500, "Internal server error", details)
 
-def error(framework_adapter, status_code, title, detail, retry_after=""):
+def error(framework_adapter, status_code, title, detail, retry_after=None):
     """Creates an error response with the given status code, error title and detail."""
     assert status_code >= 400
     error_obj = Error(
@@ -51,7 +51,7 @@ def error(framework_adapter, status_code, title, detail, retry_after=""):
         detail = detail
     )
 
-    return _response_from_error(framework_adapter, error_obj, headers={"Retry-After": retry_after} if retry_after != "" else None)
+    return _response_from_error(framework_adapter, error_obj, headers={"Retry-After": retry_after} if retry_after else None)
 #end region
 
 #region success responses
