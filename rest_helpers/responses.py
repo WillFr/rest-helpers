@@ -41,7 +41,7 @@ def internal_server_error(framework_adapter, exception, stack_trace=""):
     )
     return error(framework_adapter, 500, "Internal server error", details)
 
-def error(framework_adapter, status_code, title, detail):
+def error(framework_adapter, status_code, title, detail, retry=""):
     """Creates an error response with the given status code, error title and detail."""
     assert status_code >= 400
     error_obj = Error(
@@ -51,7 +51,7 @@ def error(framework_adapter, status_code, title, detail):
         detail = detail
     )
 
-    return _response_from_error(framework_adapter, error_obj)
+    return _response_from_error(framework_adapter, error_obj, header_dict={"Retry-After": retry} if retry != "" else {})
 #end region
 
 #region success responses
@@ -235,9 +235,9 @@ def _parse_filter(segment):
     return lambda x: compare(str(reduce(lambda acc,cur: acc[cur], path, x)), compared_to)
 
 
-def _response_from_error(framework_adapter, error):
+def _response_from_error(framework_adapter, error, header_dict={}):
     error_response = ErrorResponse(error)
-    response = framework_adapter.make_json_response(response_to_jsonable(error_response), error.status)
+    response = framework_adapter.make_json_response(response_to_jsonable(error_response), error.status, header_dict)
     return response
 
 #endregion

@@ -111,6 +111,7 @@ class FlaskFrameworkAdapter(BaseFrameworkAdapter):
         return {}
 
     def make_json_response(self, obj, status = 200, headers = {}):
+        import pdb; pdb.set_trace()
         response = jsonify(obj)
         response.status_code = status
         for k,v in headers.items():
