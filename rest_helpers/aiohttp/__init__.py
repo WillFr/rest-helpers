@@ -80,7 +80,8 @@ class AioHttpFrameworkAdapter(BaseFrameworkAdapter):
     def get_current_request_headers(self):
         return {}
 
-    def make_json_response(self, obj, status = 200, headers = {}):
+    def make_json_response(self, obj, status = 200, headers=None):
+        headers = headers or {}
         json_content = json.dumps(obj)
         return web.Response(body=json_content, headers = MultiDict(headers), status=status)
 

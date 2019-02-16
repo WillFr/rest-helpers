@@ -61,7 +61,7 @@ class BaseFrameworkAdapter(object):  # pragma: no cover
     def get_current_request_headers(self):
         raise NotImplementedError()
 
-    def make_json_response(self, obj, status = 200, headers = {}):
+    def make_json_response(self, obj, status = 200, headers=None):
         raise NotImplementedError()
     #endregion
 
