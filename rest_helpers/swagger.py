@@ -153,7 +153,8 @@ def _get_default_swagger_path(route):
         return_value = _get_default_swagger_path_for_group_op_route(route)
     elif type(route) == routes.patch_resource_route:
         return_value = _get_default_swagger_path_for_patch_resource_route(route)
-
+    elif type(route) == routes.delete_resource_route:
+        return_value = _get_default_swagger_path_for_delete_resource_route(route)
     return return_value
 
 
@@ -351,7 +352,37 @@ def _get_default_swagger_path_for_group_op_route(route):
 
     return return_value
 
+def _get_default_swagger_path_for_delete_resource_route(route):
+    return_value = {
+        "delete":{
+            "tags":[route.resource_class.resource_type],
+            "summary": "Delete ".format(type=route.resource_class.resource_type),
+            "description":"",
+            "operationId": "delete{type}".format(type="_".join((unpluralize(x) for x in route.resource_class.resource_type.split("/")))),
+            "produces": ["application/json"],
+            "parameters": _get_parameters(route),
+            "responses":{
+                "200":
+                {
+                    "description": "successful operation",
+                    "schema":
+                    {
+                        "$ref": "#/definitions/{type}".format(type=_get_swagger_type(route.resource_class)),
+                    }
+                },
+                "404":
+                {
+                    "description": "Not found: the requested {type} could not be found.".format(type=route.resource_class.resource_type),
+                    "schema":
+                    {
+                        "$ref": "#/definitions/error",
+                    }
+                }
+            }
+        }
+    }
 
+    return return_value
 #endregion
 
 
