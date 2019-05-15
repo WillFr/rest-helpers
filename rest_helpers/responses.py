@@ -45,7 +45,7 @@ def error(framework_adapter, status_code, title, detail, retry_after=None):
     """Creates an error response with the given status code, error title and detail."""
     assert status_code >= 400
     error_obj = Error(
-        error_id = str(time()),
+        error_id = framework_adapter.get_current_request_headers_dict().get("X-Unique-ID") or str(time()),
         status = status_code,
         title = title,
         detail = detail

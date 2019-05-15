@@ -56,6 +56,7 @@ setup(
     description="A set of method to help creating rest services",
     packages=find_packages(),
     long_description=read('README.md'),
+    long_description_content_type="text/markdown",
     classifiers=[
         "Programming Language :: Python :: 3.5",
         "Operating System :: OS Independent"],

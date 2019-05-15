@@ -3,7 +3,7 @@ import json
 import pytest
 
 from mock import patch, Mock, MagicMock
-from rest_helpers import responses, framework_adapter, rest_helper_context
+from rest_helpers import responses, framework_adapter, rest_helper_context, rest_exceptions, binding
 from rest_helpers.jsonapi_objects import Resource
 
 # TODO test success response with non Resource object
@@ -14,6 +14,7 @@ def test_adapter(request):
     adapter.make_json_response = lambda  obj,status=200, headers=None: (obj, status, headers)
     adapter.get_current_request_path = lambda: "/"
     adapter.get_current_request_query_string_args = lambda:{}
+    adapter.get_current_request_headers_dict = lambda: {}
     adapter.get_current_request_query_string = lambda:b""
     rh_context = rest_helper_context.RestHelperContext()
     adapter.get_rest_helper_request_context = lambda: rh_context
@@ -37,12 +38,20 @@ def test_not_found_with_details(test_adapter):
     assert "Not found" in str(resp[0])
     assert "The requested resource does not exist" in str(resp[0])
 
-def test_internal_server_error(test_adapter):
+@pytest.mark.parametrize("headers", [
+    {"X-Unique-ID": "this is the unique request id"},
+    {}
+])
+def test_internal_server_error(test_adapter, headers):
+    test_adapter.get_current_request_headers_dict = lambda: headers
     resp = responses.internal_server_error(test_adapter, Exception("test exception"), "stack trace")
     assert resp[1]== 500
     assert "Internal server error" in str(resp[0])
     assert "test exception" in str(resp[0])
     assert "stack trace" in str(resp[0])
+    if headers !=  {}:
+        assert "this is the unique request id" in str(resp[0])
+
 
 def test_ok(test_adapter):
     resp = responses.ok(test_adapter, Resource("type", "name"))
@@ -207,3 +216,15 @@ def test_parse_filter():
 
     filtered = [x for x in test_data if filter(x)]
     assert filtered == [{'a': {'b': 3}, 'c': 4}, {'a': {'b': 3, 'c': 4}}]
+
+@pytest.mark.parametrize("exception, expected_code, expected_string", [
+    (rest_exceptions.InvalidDataException("The data X is not valid"), 400, "Client error: The data X is not valid"),
+    (binding.MissingFieldException("The field XYZ is missing"), 400, "Client error: The field XYZ is missing"),
+    (rest_exceptions.UnauthorizedException("You are not authorized"), 401, "Your authentication was not successful."),
+    (rest_exceptions.ForbiddenException("This is forbidden"), 403, "You are not authorized to access the requested resources or perform the requested operation.")
+])
+def test_exception_handler(test_adapter, exception, expected_code, expected_string):
+    result_json, status_code, _ = responses.base_exception_handler(test_adapter, exception)
+
+    assert status_code == expected_code
+    assert expected_string in result_json["error"]["detail"]
