@@ -11,7 +11,7 @@ from rest_helpers.jsonapi_objects import Resource
 @pytest.fixture
 def test_adapter(request):
     adapter = MagicMock(wraps=framework_adapter.BaseFrameworkAdapter())
-    adapter.make_json_response = lambda  obj,status=200, headers=None: (obj, status, headers)
+    adapter.make_json_response = lambda  obj,status=200, headers=None, title=None: (obj, status, headers, title)
     adapter.get_current_request_path = lambda: "/"
     adapter.get_current_request_query_string_args = lambda:{}
     adapter.get_current_request_headers_dict = lambda: {}
@@ -49,6 +49,8 @@ def test_internal_server_error(test_adapter, headers):
     assert "Internal server error" in str(resp[0])
     assert "test exception" in str(resp[0])
     assert "stack trace" in str(resp[0])
+    assert resp[3] == 'Internal server error'
+
     if headers !=  {}:
         assert "this is the unique request id" in str(resp[0])
 
@@ -217,14 +219,15 @@ def test_parse_filter():
     filtered = [x for x in test_data if filter(x)]
     assert filtered == [{'a': {'b': 3}, 'c': 4}, {'a': {'b': 3, 'c': 4}}]
 
-@pytest.mark.parametrize("exception, expected_code, expected_string", [
-    (rest_exceptions.InvalidDataException("The data X is not valid"), 400, "Client error: The data X is not valid"),
-    (binding.MissingFieldException("The field XYZ is missing"), 400, "Client error: The field XYZ is missing"),
-    (rest_exceptions.UnauthorizedException("You are not authorized"), 401, "Your authentication was not successful."),
-    (rest_exceptions.ForbiddenException("This is forbidden"), 403, "You are not authorized to access the requested resources or perform the requested operation.")
+@pytest.mark.parametrize("exception, expected_code, expected_string, expected_title", [
+    (rest_exceptions.InvalidDataException("The data X is not valid"), 400, "Client error: The data X is not valid", "Bad request"),
+    (binding.MissingFieldException("The field XYZ is missing"), 400, "Client error: The field XYZ is missing", "Bad request"),
+    (rest_exceptions.UnauthorizedException("You are not authorized"), 401, "Your authentication was not successful.", "Unauthorized"),
+    (rest_exceptions.ForbiddenException("This is forbidden"), 403, "You are not authorized to access the requested resources or perform the requested operation.", "Forbidden")
 ])
-def test_exception_handler(test_adapter, exception, expected_code, expected_string):
-    result_json, status_code, _ = responses.base_exception_handler(test_adapter, exception)
+def test_exception_handler(test_adapter, exception, expected_code, expected_string, expected_title):
+    result_json, status_code, headers, title = responses.base_exception_handler(test_adapter, exception)
 
     assert status_code == expected_code
+    assert title == expected_title
     assert expected_string in result_json["error"]["detail"]

@@ -237,7 +237,7 @@ def _parse_filter(segment):
 
 def _response_from_error(framework_adapter, error, headers=None):
     error_response = ErrorResponse(error)
-    response = framework_adapter.make_json_response(response_to_jsonable(error_response), error.status, headers)
+    response = framework_adapter.make_json_response(response_to_jsonable(error_response), error.status, headers, title = error.title)
     return response
 
 #endregion
