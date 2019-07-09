@@ -110,10 +110,13 @@ class FlaskFrameworkAdapter(BaseFrameworkAdapter):
     def get_current_request_headers(self):
         return {}
 
-    def make_json_response(self, obj, status = 200, headers=None):
+    def make_json_response(self, obj, status = 200, headers=None, title=None):
         headers = headers or {}
         response = jsonify(obj)
-        response.status_code = status
+        if title is not None:
+            response._status = str(status)+" "+title
+        response._status_code = status
+
         for k,v in headers.items():
             response.headers[k] = v
         return response
