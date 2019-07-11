@@ -78,12 +78,6 @@ class base_binder(object):
         self.has_default = f_args != None and self.real_view_function.__defaults__!=None and arg_index >= len(f_args) - len(self.real_view_function.__defaults__)
         self.default = self.real_view_function.__defaults__[arg_index - (len(f_args) - len(self.real_view_function.__defaults__))] if self.has_default else None
 
-        if self.deserializer is None and self.type is not None:
-            self.deserializer = type_deserializers.get_default_deserializer(self.type)
-
-        if self.validator is None and self.type is not None:
-            self.validator = validators.get_type_validators(self.type)
-
         async def return_value(*args, **kwargs):
             args = self.framework_adapter.set_request_args(args)
             kwargs = self.framework_adapter.set_request_kwargs(kwargs)
@@ -445,7 +439,7 @@ async def _on_request_binding(decorator, *args, **kwargs):
 
     kwargs.pop(decorator.field,None)
     kwargs[decorator.field] = value
-    
+
     return await await_if_needed(decorator.func(*args, **kwargs))
 
 async def _get_dict_from_json_body(framework_adapter):

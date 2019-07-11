@@ -221,34 +221,42 @@ async def test_base_binder_with_improper_field(counter, test_adapter):
 
     assert "Argument foo could not be found in function" in str(ex.value)
 
-def test_base_binder_default_validator(test_adapter):
-    with patch("rest_helpers.validators.get_type_validators", MagicMock()) as get_type_validators:
+async def test_base_binder_default_validator(test_adapter, make_coro):
+    with patch("rest_helpers.validators.get_type_validators", MagicMock(return_value= lambda x,y: (1,""))) as get_type_validators:
         binding_decorator = binding.base_binder(test_adapter, field="abc")
+        binding_decorator.get_value = lambda : make_coro("1")
         @binding_decorator
         def inner_func(abc:int):
             return "success" #pragma: no cover
+        await inner_func()
         get_type_validators._mock_call_args[0][0] == int
 
         binding_decorator = binding.base_binder(test_adapter, field="abc", type=bool)
+        binding_decorator.get_value = lambda : make_coro("True")
         @binding_decorator
         def inner_func(abc):
             return "success" #pragma: no cover
+        await inner_func()
         get_type_validators._mock_call_args[0][0] == bool
 
 
 @pytest.mark.base_binder
-def test_base_binder_default_deserializer(test_adapter):
-    with patch("rest_helpers.type_deserializers.get_default_deserializer", MagicMock()) as get_default_deserializer:
+async def test_base_binder_default_deserializer(test_adapter, make_coro):
+    with patch("rest_helpers.type_deserializers.get_default_deserializer", MagicMock(return_value= lambda x: 1)) as get_default_deserializer:
         binding_decorator = binding.base_binder(test_adapter, field="abc")
+        binding_decorator.get_value = lambda : make_coro("1")
         @binding_decorator
         def inner_func(abc:int):
             return "success" #pragma: no cover
+        await inner_func()
         get_default_deserializer._mock_call_args[0][0] == int
 
         binding_decorator = binding.base_binder(test_adapter, field="abc", type=bool)
+        binding_decorator.get_value = lambda : make_coro("1")
         @binding_decorator
         def inner_func(abc):
             return "success" #pragma: no cover
+        await inner_func()
         get_default_deserializer._mock_call_args[0][0] == bool
 
 @pytest.mark.asyncio
