@@ -35,11 +35,7 @@ def to_jsonable(obj, no_empty_field=False):
             return int(obj) if '.' not in str_rep else str_rep
         return obj
 
-    return {
-        k: to_jsonable(v, no_empty_field)
-        for k, v in dic.items()
-        if k[0] != '_' and (not no_empty_field or v is not None and v != "")
-    }
+    return {str(k): to_jsonable(v, no_empty_field)for k, v in dic.items()if str(k)[0] != '_' and (not no_empty_field or v is not None and v != "")}
 
 def response_to_jsonable(response, generate_self_links=True, id_only=False):
     """
