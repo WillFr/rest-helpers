@@ -18,10 +18,11 @@ def test(build):
     build.packages.install("mock")
     build.executables.run([
         "py.test", "--cov=rest_helpers",
-        os.getcwd() + "/rest_helpers/tests",
+        "./rest_helpers/tests",
         "--cov-report", "term-missing",
         "--cov-report", "xml:cov.xml"
-    ] + build.options.args)
+    ] + build.options.args,
+    subprocess_args={"cwd":os.getcwd()})
 
 
 def publish(build):
@@ -29,11 +30,12 @@ def publish(build):
     build.packages.install("wheel")
     build.packages.install("twine")
     build.executables.run([
-        "python3", os.getcwd() + "/setup.py",
-        "sdist","--formats=gztar", "--release",# "bdist_wheel", "--universal", "--release",
-        "--dist-dir", os.getcwd() + "/dist"
-    ])
+        "python3", "setup.py",
+        "sdist", "bdist_wheel", "--universal", "--release",
+    ],
+    subprocess_args={"cwd":os.getcwd()})
 
     build.executables.run([
         "twine", "upload", os.getcwd() + "/dist/*"
-    ])
+    ],
+    subprocess_args={"cwd":os.getcwd()})
