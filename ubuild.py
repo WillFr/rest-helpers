@@ -30,7 +30,7 @@ def publish(build):
     build.packages.install("twine")
     build.executables.run([
         "python3", os.getcwd() + "/setup.py",
-        "sdist", "bdist_wheel", "--universal", "--release",
+        "sdist","--formats=gztar", "--release",# "bdist_wheel", "--universal", "--release",
         "--dist-dir", os.getcwd() + "/dist"
     ])
 
