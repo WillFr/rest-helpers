@@ -55,7 +55,7 @@ def error(framework_adapter, status_code, title, detail, retry_after=None):
 #end region
 
 #region success responses
-def ok(framework_adapter, data, page_size=None, id_only=False):
+def ok(framework_adapter, data, page_size=None, id_only=False, is_private=None):
     """Create an HTTP response with exit code 200:OK
 
     Arguments:
@@ -83,7 +83,7 @@ def accepted(framework_adapter, data=None):
     """
     return success(framework_adapter, data,202, {"output":"success"})
 
-def success(framework_adapter, data, status_code, meta=None, links=None, page_size=None, id_only=False):
+def success(framework_adapter, data, status_code, meta=None, links=None, page_size=None, id_only=False, is_private=None):
     """ Create a success response with the given object, status code, and meta. """
     assert status_code < 300 and status_code >= 200
     request_args=framework_adapter.get_current_request_query_string_args()
@@ -97,7 +97,7 @@ def success(framework_adapter, data, status_code, meta=None, links=None, page_si
             data = _paginate(framework_adapter, data, actual_page_size, links, meta)
 
     if data is not None and not isinstance(data, Resource) and not isinstance(data, list):
-        jsonable = to_jsonable(data)
+        jsonable = to_jsonable(data, is_private=is_private)
     else:
         resp = SuccessResponse(data=data, meta=meta, links=links)
         jsonable = response_to_jsonable(resp, id_only=id_only)
@@ -202,10 +202,10 @@ def _parse_filter(segment):
     ]
     would be filtered to [{ key1: {key2: 123x}]
 
-    
+
     Arguments:
         segment {str} -- the segment to filter
-    
+
     Raises:
         Exception -- if the filter is not properly formatted, an exception will be raised.
 
