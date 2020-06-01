@@ -15,7 +15,7 @@ class TestTypeSerializers(object):
                 self.id = "test_id"
                 self._private = "private"
                 self.__super_private = "super_private"
-                self.dic = {"this": "is", "a": "dictionary", "of":"strings", "and ints":2}
+                self.dic = {"this": "is", "a": "dictionary", "of":"strings", "and ints":2, "_private_value": 1}
                 self.inner_obj = TestInnerObj("This is a message")
                 self.inner_obj_list = [TestInnerObj("ex 1"), TestInnerObj("ex 2"), TestInnerObj("ex 3")]
                 self.none_field = None
@@ -44,6 +44,17 @@ class TestTypeSerializers(object):
             "inner_obj_list" : [{"message": "ex 1"}, {"message": "ex 2"}, {"message": "ex 3"}],
             'decimal': 3,
             'decimal_float': '3.4'
+        }
+
+        self_defined_is_private = lambda k: True if (str(k)[0] != '_' or (str(k)[0] == '_' and str(k) in ["_private_value"])) else False
+        assert type_serializers.to_jsonable(test_object, no_empty_field=True, is_private=self_defined_is_private) == {
+            "name":"test_name",
+            "id":"test_id",
+            "dic": {"this": "is", "a": "dictionary", "of":"strings", "and ints":2, "_private_value": 1},
+            "inner_obj": {"message": "This is a message"},
+            "inner_obj_list" : [{"message": "ex 1"}, {"message": "ex 2"}, {"message": "ex 3"}],
+            'decimal': 3,
+            'decimal_float': '3.4',
         }
 
     def test_response_to_jsonable(self):
@@ -197,4 +208,3 @@ class TestTypeSerializers(object):
                 }
             }
         }
-

@@ -7,7 +7,7 @@ import decimal
 from collections import Iterable
 from rest_helpers.jsonapi_objects import Resource, Response, Link, JsonApiObject, Relationship
 
-def to_jsonable(obj, no_empty_field=False):
+def to_jsonable(obj, no_empty_field=False, is_private=None):
     """
     This is a low level function to transform any object into a json
     serializable (jsonable) object based on its __dict__.
@@ -20,11 +20,18 @@ def to_jsonable(obj, no_empty_field=False):
         string or None) will be removed from the resulting jsonable object
         (default: {False})
 
+        is_private -- callback/function can be passed through to define what
+        does or does not surface in json payload.
+
     Returns:
         dict -- A dictionary that can be used by json.dumps
     """
+
+    if is_private is None:
+        is_private = lambda k: True if str(k)[0] != '_' else False
+
     if isinstance(obj, list):
-        return [to_jsonable(r, no_empty_field) for r in obj]
+        return [to_jsonable(r, no_empty_field, is_private) for r in obj]
     dic = obj if isinstance(obj, dict) else \
           obj.__dict__ if hasattr(obj, "__dict__") else \
           None
@@ -34,8 +41,7 @@ def to_jsonable(obj, no_empty_field=False):
             str_rep = str(obj)
             return int(obj) if '.' not in str_rep else str_rep
         return obj
-
-    return {str(k): to_jsonable(v, no_empty_field)for k, v in dic.items()if (str(k)[0] != '_' or (str(k)[0] == '_' and str(k) in ["__defaults__", "__set_default__"]))  and (not no_empty_field or v is not None and v != "")}
+    return {str(k): to_jsonable(v, no_empty_field, is_private)for k, v in dic.items() if is_private(k) and (not no_empty_field or v is not None and v != "")}
 
 def response_to_jsonable(response, generate_self_links=True, id_only=False):
     """
