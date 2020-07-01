@@ -69,7 +69,7 @@ def ok(framework_adapter, data, page_size=None, id_only=False, is_private=None):
     Returns:
         [dict] -- A json serializable representation of a JSONAPI response.
     """
-    return success(framework_adapter, data, 200, page_size = page_size, id_only=id_only)
+    return success(framework_adapter, data, 200, page_size = page_size, id_only=id_only, is_private=is_private)
 
 
 def created(framework_adapter, data):
@@ -100,7 +100,7 @@ def success(framework_adapter, data, status_code, meta=None, links=None, page_si
         jsonable = to_jsonable(data, is_private=is_private)
     else:
         resp = SuccessResponse(data=data, meta=meta, links=links)
-        jsonable = response_to_jsonable(resp, id_only=id_only)
+        jsonable = response_to_jsonable(resp, id_only=id_only,is_private=is_private)
 
 
     if "json_path" in request_args:

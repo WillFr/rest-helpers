@@ -26,7 +26,6 @@ def to_jsonable(obj, no_empty_field=False, is_private=None):
     Returns:
         dict -- A dictionary that can be used by json.dumps
     """
-
     if is_private is None:
         is_private = lambda k: True if str(k)[0] != '_' else False
 
@@ -43,7 +42,7 @@ def to_jsonable(obj, no_empty_field=False, is_private=None):
         return obj
     return {str(k): to_jsonable(v, no_empty_field, is_private)for k, v in dic.items() if is_private(k) and (not no_empty_field or v is not None and v != "")}
 
-def response_to_jsonable(response, generate_self_links=True, id_only=False):
+def response_to_jsonable(response, generate_self_links=True, id_only=False,is_private=None):
     """
     Transform a response object into a json serializable (jsonable) object that
     matches the jsonapi requirements.
@@ -64,10 +63,10 @@ def response_to_jsonable(response, generate_self_links=True, id_only=False):
     # hence it needs some special serialization logic)
     dic = response.__dict__.copy()
     dic.pop("data")
-    return_value = to_jsonable(dic, no_empty_field=True)
+    return_value = to_jsonable(dic, no_empty_field=True,is_private=is_private)
 
     if response.data is not None:
-        jsonable_data = resource_to_jsonable(response.data, generate_self_links)
+        jsonable_data = resource_to_jsonable(response.data, generate_self_links,is_private=is_private)
         if id_only:
             jsonable_data = jsonable_data["id"] if not isinstance(jsonable_data, Iterable) else [x["id"] for x in jsonable_data]
         return_value["data"] = jsonable_data
@@ -75,7 +74,7 @@ def response_to_jsonable(response, generate_self_links=True, id_only=False):
     return return_value
 
 
-def resource_to_jsonable(resource, generate_self_links=True):
+def resource_to_jsonable(resource, generate_self_links=True,is_private=None):
     """
     Transform a resource object or a resource object list into
     a json serializable (jsonable) object that matches the jsonapi
@@ -94,11 +93,11 @@ def resource_to_jsonable(resource, generate_self_links=True):
     """
 
     if isinstance(resource, list):
-        return [resource_to_jsonable(x) for x in resource]
+        return [resource_to_jsonable(x,is_private) for x in resource]
 
     assert isinstance(resource, Resource)
 
-    json_resource = resource.to_primitive() if (hasattr(resource, "to_primitive") and callable(resource,to_primitive)) else to_jsonable(resource)
+    json_resource = resource.to_primitive() if (hasattr(resource, "to_primitive") and callable(resource,to_primitive)) else to_jsonable(resource, is_private=is_private)
     special = ["id", "type", "relationships", "links", "meta"]
     for key in special:
         json_resource.pop(key, None)
